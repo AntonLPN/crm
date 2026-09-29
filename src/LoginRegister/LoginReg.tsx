@@ -128,10 +128,15 @@ export function App(): React.ReactElement {
 function LoginForm(): React.ReactElement {
     const {t} = useTranslation();
 
+    const [email, setEmail] = React.useState<string>('');
+    const [password, setPassword] = React.useState<string>('');
     const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         // Предотвращаем стандартное поведение браузера (перезагрузку страницы)
         e.preventDefault();
-        console.log('Кнопка нажата / Форма отправлена!');
+        console.log('Данные формы для отправки:', {
+            email: email,
+            password: password
+        });
     };
 
     return (
@@ -146,12 +151,14 @@ function LoginForm(): React.ReactElement {
                     icon={Mail}
                     type="email"
                     placeholder={t('login.email')}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
                 <InputField
                     icon={Lock}
                     type="password"
                     placeholder={t('login.password')}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                 />
             </div>
