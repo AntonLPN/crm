@@ -5,6 +5,7 @@ import {
     Mail, Lock, User, ShieldCheck, Stethoscope, Activity,
     ArrowRight, Sparkles, CheckCircle2
 } from 'lucide-react';
+import {InputField} from "../components/LoginRegComponents/InputField";
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
@@ -127,37 +128,32 @@ export function App(): React.ReactElement {
 function LoginForm(): React.ReactElement {
     const {t} = useTranslation();
 
+    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+        // Предотвращаем стандартное поведение браузера (перезагрузку страницы)
+        e.preventDefault();
+        console.log('Кнопка нажата / Форма отправлена!');
+    };
+
     return (
-        <form className="space-y-5" onSubmit={(e: React.FormEvent<HTMLFormElement>) => e.preventDefault()}>
+        <form className="space-y-5" onSubmit = {handleSubmit}>
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-slate-800">{t('login.title')}</h2>
                 <p className="text-slate-500 mt-2 text-sm">{t('login.subtitle')}</p>
             </div>
-
+            {/*input boxes*/}
             <div className="space-y-4">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-slate-400"/>
-                    </div>
-                    <input
-                        type="email"
-                        placeholder={t('login.email')}
-                        className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium"
-                        required
-                    />
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-slate-400"/>
-                    </div>
-                    <input
-                        type="password"
-                        placeholder={t('login.password')}
-                        className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium"
-                        required
-                    />
-                </div>
+                <InputField
+                    icon={Mail}
+                    type="email"
+                    placeholder={t('login.email')}
+                    required
+                />
+                <InputField
+                    icon={Lock}
+                    type="password"
+                    placeholder={t('login.password')}
+                    required
+                />
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -192,7 +188,7 @@ function RegisterForm(): React.ReactElement {
     const [role, setRole] = React.useState<string>('doctor');
 
     return (
-        <form className="space-y-4" onSubmit={(e: React.FormEvent<HTMLFormElement>) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-slate-800">{t('reg.title')}</h2>
                 <p className="text-slate-500 mt-2 text-sm">{t('reg.subtitle')}</p>

@@ -13,7 +13,6 @@ const resources = {
                 feat1: "Быстрая запись и управление расписанием",
                 feat2: "Электронные медицинские карты (ЭМК)",
                 feat3: "Аналитика и финансовый учет",
-                version: "Версия 2.4.0 (Secure Health Data)"
             },
             tabs: { login: "Вход", register: "Регистрация" },
             login: {
@@ -23,7 +22,9 @@ const resources = {
                 password: "Пароль",
                 remember: "Запомнить меня",
                 forgot: "Забыли пароль?",
-                submit: "Войти в систему"
+                submit: "Войти в систему",
+                showPassword: "Показать пароль",
+                hidePassword: "Скрыть пароль",
             },
             reg: {
                 title: "Создать аккаунт",
@@ -51,7 +52,6 @@ const resources = {
                 feat1: "Швидкий запис та управління розкладом",
                 feat2: "Електронні медичні картки (ЕМК)",
                 feat3: "Аналітика та фінансовий облік",
-                version: "Версія 2.4.0 (Secure Health Data)"
             },
             tabs: { login: "Вхід", register: "Реєстрація" },
             login: {
@@ -61,7 +61,9 @@ const resources = {
                 password: "Пароль",
                 remember: "Запам'ятати мене",
                 forgot: "Забули пароль?",
-                submit: "Увійти в систему"
+                submit: "Увійти в систему",
+                showPassword: "Показати пароль",
+                hidePassword: "Приховати пароль",
             },
             reg: {
                 title: "Створити акаунт",
@@ -89,7 +91,7 @@ const resources = {
                 feat1: "Fast scheduling and management",
                 feat2: "Electronic Medical Records (EMR)",
                 feat3: "Analytics and financial accounting",
-                version: "Version 2.4.0 (Secure Health Data)"
+                version: "Version 1.0.0 (Secure Health Data)"
             },
             tabs: { login: "Log in", register: "Register" },
             login: {
@@ -99,7 +101,9 @@ const resources = {
                 password: "Password",
                 remember: "Remember me",
                 forgot: "Forgot password?",
-                submit: "Sign in"
+                submit: "Sign in",
+                showPassword: "Show password",
+                hidePassword: "Hide password",
             },
             reg: {
                 title: "Create account",
