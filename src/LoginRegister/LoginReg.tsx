@@ -115,12 +115,15 @@ export function App(): React.ReactElement {
         </div>
     );
 }
+
 //Login
 function LoginForm(): React.ReactElement {
     const {t} = useTranslation();
 
+    //Login
     const [email, setEmail] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
+
     const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         // Предотвращаем стандартное поведение браузера (перезагрузку страницы)
         e.preventDefault();
@@ -131,7 +134,7 @@ function LoginForm(): React.ReactElement {
     };
 
     return (
-        <form className="space-y-5" onSubmit = {handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-slate-800">{t('login.title')}</h2>
                 <p className="text-slate-500 mt-2 text-sm">{t('login.subtitle')}</p>
@@ -180,10 +183,17 @@ function LoginForm(): React.ReactElement {
         </form>
     );
 }
+
 //Регистрация
 function RegisterForm(): React.ReactElement {
     const {t} = useTranslation();
     const [role, setRole] = React.useState<string>('doctor');
+    //Reg
+    const [regEmail, setEmail] = React.useState<string>('');
+    const [password, setPassword] = React.useState<string>('');
+    const [confirmPassword, setConfirmPassword] = React.useState<string>('');
+    const [firstName, setFirstName] = React.useState<string>('');
+    const [lastName, setLastName] = React.useState<string>('');
 
     return (
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
@@ -214,38 +224,28 @@ function RegisterForm(): React.ReactElement {
                 </div>
             </div>
 
-            <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-slate-400"/>
-                </div>
-                <input
+            <div className="space-y-4">
+                <InputField
+                    icon={Mail}
                     type="email"
                     placeholder={t('reg.email')}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium text-sm"
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-slate-400"/>
-                    </div>
-                    <input
-                        type="password"
-                        placeholder={t('reg.password')}
-                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium text-sm"
-                        required
-                    />
-                </div>
-                <div className="relative">
-                    <input
-                        type="password"
-                        placeholder={t('reg.confirm')}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium text-sm"
-                        required
-                    />
-                </div>
+                <InputField
+                    icon={Lock}
+                    type="password"
+                    placeholder={t('reg.password')}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <InputField
+                    icon={Lock}
+                    type="password"
+                    placeholder={t('reg.confirm')}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                />
             </div>
 
             <div className="pt-2">
