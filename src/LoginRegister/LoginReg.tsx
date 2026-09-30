@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
-import type {i18n as I18nType} from 'i18next';
 import {
     Mail, Lock, User, ShieldCheck, Stethoscope, Activity,
     ArrowRight, Sparkles, CheckCircle2
@@ -9,7 +8,7 @@ import {InputField} from "../components/LoginRegComponents/InputField";
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
-    const {t, i18n} = useTranslation() as { t: (key: string, options?: any) => string; i18n: I18nType };
+    const {t, i18n} = useTranslation();
 
     const changeLanguage = (lng: string): void => {
         void i18n.changeLanguage(lng);
