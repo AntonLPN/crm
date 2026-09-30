@@ -4,7 +4,9 @@ import {
     Mail, Lock, User, ShieldCheck, Stethoscope, Activity,
     ArrowRight, Sparkles, CheckCircle2
 } from 'lucide-react';
+// Components
 import {InputField} from "../components/LoginRegComponents/InputField";
+import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage";
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
@@ -67,27 +69,17 @@ export function App(): React.ReactElement {
                 <div className="w-full md:w-7/12 lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative">
 
                     {/* Переключатель языков */}
-                    <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-1 z-20">
-                        {['en', 'ru', 'uk'].map((lang: string) => (
-                            <button
-                                key={lang}
-                                onClick={() => changeLanguage(lang)}
-                                className={`px-2.5 py-1 text-xs font-bold rounded-lg uppercase transition-colors ${
-                                    i18n.language === lang
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-slate-500 hover:bg-slate-100'
-                                }`}
-                            >
-                                {lang}
-                            </button>
-                        ))}
-                    </div>
+                    <LanguageSwitcher
+                        currentLanguage={i18n.language}
+                        onChange={changeLanguage}
+                        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20"
+                    />
 
                     <div className="md:hidden flex items-center gap-3 mb-8 justify-center mt-6">
                         <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
                             <Stethoscope className="text-white w-6 h-6"/>
                         </div>
-                        <span className="text-slate-800 text-2xl font-bold">DentaCRM</span>
+                        <span className="text-slate-800 text-2xl font-bold">Diastema</span>
                     </div>
 
                     <div className="max-w-md w-full mx-auto">
