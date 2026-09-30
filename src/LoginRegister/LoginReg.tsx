@@ -123,7 +123,7 @@ export function App(): React.ReactElement {
         </div>
     );
 }
-
+//Login
 function LoginForm(): React.ReactElement {
     const {t} = useTranslation();
 
@@ -188,7 +188,7 @@ function LoginForm(): React.ReactElement {
         </form>
     );
 }
-
+//Регистрация
 function RegisterForm(): React.ReactElement {
     const {t} = useTranslation();
     const [role, setRole] = React.useState<string>('doctor');
