@@ -7,6 +7,8 @@ import {
 // Components
 import {InputField} from "../components/LoginRegComponents/InputField";
 import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage";
+import {PhoneInput} from "../components/LoginRegComponents/PhoneInput";
+import type {CountryCode} from 'libphonenumber-js';
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
@@ -189,12 +191,13 @@ function RegisterForm(): React.ReactElement {
     const {t} = useTranslation();
     const [role, setRole] = React.useState<string>('doctor');
     //Reg
+    const [phone, setPhone] = React.useState<string>('');
+    const [country, setCountry] = React.useState<CountryCode>('UA');
     const [regEmail, setEmail] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
     const [confirmPassword, setConfirmPassword] = React.useState<string>('');
     const [firstName, setFirstName] = React.useState<string>('');
     const [lastName, setLastName] = React.useState<string>('');
-
     return (
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div className="text-center mb-6">
@@ -203,25 +206,20 @@ function RegisterForm(): React.ReactElement {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-slate-400"/>
-                    </div>
-                    <input
-                        type="text"
-                        placeholder={t('reg.firstName')}
-                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium text-sm"
-                        required
-                    />
-                </div>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder={t('reg.lastName')}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium text-sm"
-                        required
-                    />
-                </div>
+                <InputField
+                    icon={User}
+                    type="text"
+                    placeholder={t('reg.firstName')}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                />
+                <InputField
+                    icon={User}
+                    type="text"
+                    placeholder={t('reg.lastName')}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                />
             </div>
 
             <div className="space-y-4">
@@ -230,6 +228,13 @@ function RegisterForm(): React.ReactElement {
                     type="email"
                     placeholder={t('reg.email')}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <PhoneInput
+                    value={phone}
+                    country={country}
+                    onPhoneChange={setPhone}
+                    onCountryChange={setCountry}
                     required
                 />
                 <InputField
