@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {ChevronDown, Phone} from 'lucide-react';
-import {getCountries, getCountryCallingCode, type CountryCode} from 'libphonenumber-js';
+import {getCountries, getCountryCallingCode, isValidPhoneNumber, type CountryCode} from 'libphonenumber-js';
 
 interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
     value: string;
@@ -20,6 +20,7 @@ export function PhoneInput({
     const {t, i18n} = useTranslation();
     const [isCountryListOpen, setIsCountryListOpen] = React.useState(false);
     const [countrySearch, setCountrySearch] = React.useState('');
+    const [isPhoneFocused, setIsPhoneFocused] = React.useState(false);
     const countrySelectorRef = React.useRef<HTMLDivElement>(null);
     const locale = i18n.resolvedLanguage ?? i18n.language;
     const countryNames = React.useMemo(
@@ -40,6 +41,28 @@ export function PhoneInput({
     const filteredCountries = countries.filter(({name, callingCode}) =>
         `${name} +${callingCode}`.toLocaleLowerCase(locale).includes(countrySearch.toLocaleLowerCase(locale))
     );
+    const hasInvalidPhone = value.length > 0 && !isValidPhoneNumber(value, country);
+    const selectCountry = (code: CountryCode): void => {
+        onCountryChange(code);
+        setCountrySearch('');
+        setIsCountryListOpen(false);
+    };
+    const handleCountrySearchKeyDown = (event: React.KeyboardEvent<HTMLElement>): void => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (filteredCountries[0]) selectCountry(filteredCountries[0].code);
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            setIsCountryListOpen(false);
+        }
+    };
+    const handleKeyDownCapture = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (event.target instanceof HTMLInputElement && event.target.dataset.countrySearch === 'true') {
+            handleCountrySearchKeyDown(event);
+        }
+    };
 
     React.useEffect(() => {
         const closeCountryList = (event: PointerEvent): void => {
@@ -52,8 +75,10 @@ export function PhoneInput({
     }, []);
 
     return (
+        <div className="space-y-1">
         <div
-            className="relative flex items-center rounded-xl border border-slate-200  transition-all   focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10">
+            onKeyDownCapture={handleKeyDownCapture}
+            className="relative flex items-center rounded-xl border border-slate-200 bg-white transition-all focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10">
             <Phone className="pointer-events-none absolute left-4 h-5 w-5 text-slate-400"/>
             <div className="relative ml-11 border-r border-slate-200 py-1 pr-2" ref={countrySelectorRef}>
                 <button
@@ -72,7 +97,8 @@ export function PhoneInput({
                     <div
                         className="absolute left-0 top-full z-30 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                         <input
-                            type="search"
+                            type="text"
+                            data-country-search="true"
                             value={countrySearch}
                             onChange={(event) => setCountrySearch(event.target.value)}
                             placeholder={t('reg.searchCountry')}
@@ -84,11 +110,7 @@ export function PhoneInput({
                                 <button
                                     key={code}
                                     type="button"
-                                    onClick={() => {
-                                        onCountryChange(code);
-                                        setCountrySearch('');
-                                        setIsCountryListOpen(false);
-                                    }}
+                                    onClick={() => selectCountry(code)}
                                     className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50 ${code === country ? 'bg-blue-50 text-blue-700' : 'text-slate-700'}`}
                                 >
                                     <span aria-hidden="true"
@@ -109,10 +131,20 @@ export function PhoneInput({
                     placeholder={t('reg.phone')}
                     value={value}
                     onChange={(event) => onPhoneChange(event.target.value.replace(/\D/g, ''))}
-                    className="w-full min-w-0 rounded-r-xl bg-transparent px-3 py-3.5 text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400 focus:bg-blue-50"
+                    onFocus={() => setIsPhoneFocused(true)}
+                    onBlur={() => setIsPhoneFocused(false)}
+                    aria-invalid={hasInvalidPhone}
+                    aria-describedby={hasInvalidPhone ? 'phone-format-error' : undefined}
+                    className={`w-full min-w-0 rounded-r-xl px-3 py-3.5 text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400 ${isPhoneFocused ? 'bg-blue-50' : 'bg-white'}`}
                     {...inputProps}
                 />
             </div>
+        </div>
+        {hasInvalidPhone && (
+            <p id="phone-format-error" className="text-sm text-red-600" aria-live="polite">
+                {t('reg.phoneInvalid')}
+            </p>
+        )}
         </div>
     );
 }
