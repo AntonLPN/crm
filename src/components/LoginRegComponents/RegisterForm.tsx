@@ -6,19 +6,46 @@ import {InputField} from './InputField';
 import {PhoneInput} from './PhoneInput';
 import {RoleButton} from './RoleButton';
 
-export function RegisterForm(): React.ReactElement {
+export interface RegistrationData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    country: CountryCode;
+    password: string;
+    role: 'admin' | 'doctor';
+}
+
+interface RegisterFormProps {
+    onRegister?: (data: RegistrationData) => void;
+}
+
+export function RegisterForm({onRegister}: RegisterFormProps): React.ReactElement {
     const {t} = useTranslation();
-    const [role, setRole] = React.useState<string>('admin');
+    const [role, setRole] = React.useState<RegistrationData['role']>('admin');
     const [phone, setPhone] = React.useState<string>('');
     const [country, setCountry] = React.useState<CountryCode>('UA');
-    const [, setEmail] = React.useState<string>('');
-    const [, setPassword] = React.useState<string>('');
-    const [, setConfirmPassword] = React.useState<string>('');
-    const [, setFirstName] = React.useState<string>('');
-    const [, setLastName] = React.useState<string>('');
+    const [email, setEmail] = React.useState<string>('');
+    const [password, setPassword] = React.useState<string>('');
+    const [firstName, setFirstName] = React.useState<string>('');
+    const [lastName, setLastName] = React.useState<string>('');
+
+    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>): void => {
+        event.preventDefault();
+
+        onRegister?.({
+            firstName,
+            lastName,
+            email,
+            phone,
+            country,
+            password,
+            role
+        });
+    };
 
     return (
-        <form className="space-y-4" onSubmit={(event) => event.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-slate-800">{t('reg.title')}</h2>
                 <p className="text-slate-500 mt-2 text-sm">{t('reg.subtitle')}</p>
@@ -67,7 +94,6 @@ export function RegisterForm(): React.ReactElement {
                     icon={Lock}
                     type="password"
                     placeholder={t('reg.confirm')}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
                     required
                 />
             </div>

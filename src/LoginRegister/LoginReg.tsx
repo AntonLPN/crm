@@ -6,6 +6,8 @@ import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage"
 import {LoginForm} from "../components/LoginRegComponents/LoginForm";
 import {RegisterForm} from "../components/LoginRegComponents/RegisterForm";
 import {LoginRegisterBanner} from "../components/LoginRegComponents/LoginRegisterBanner";
+import {registerUser} from '../api/auth';
+import type {RegistrationData} from '../components/LoginRegComponents/RegisterForm';
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
@@ -13,6 +15,15 @@ export function App(): React.ReactElement {
 
     const changeLanguage = (lng: string): void => {
         void i18n.changeLanguage(lng);
+    };
+
+    const handleRegister = async (data: RegistrationData): Promise<void> => {
+        try {
+            await registerUser(data);
+            console.info('Регистрация успешно отправлена');
+        } catch (error) {
+            console.error('Не удалось выполнить регистрацию:', error);
+        }
     };
 
     return (
@@ -63,7 +74,7 @@ export function App(): React.ReactElement {
 
                             <div
                                 className={`transition-opacity duration-500 ${!isLogin ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
-                                <RegisterForm/>
+                                <RegisterForm onRegister={handleRegister}/>
                             </div>
                         </div>
                     </div>
