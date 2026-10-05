@@ -6,7 +6,7 @@ import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage"
 import {LoginForm} from "../components/LoginRegComponents/LoginForm";
 import {RegisterForm} from "../components/LoginRegComponents/RegisterForm";
 import {LoginRegisterBanner} from "../components/LoginRegComponents/LoginRegisterBanner";
-import {registerUser} from '../api/auth/api';
+import {registerUser} from '../api/auth/apiService';
 import type {RegistrationData} from '../components/LoginRegComponents/RegisterForm';
 
 export function App(): React.ReactElement {
