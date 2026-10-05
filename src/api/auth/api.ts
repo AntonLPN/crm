@@ -1,6 +1,10 @@
-import type {RegistrationData} from '../components/LoginRegComponents/RegisterForm';
+import type {RegistrationData} from '../../components/LoginRegComponents/RegisterForm';
+import {ENDPOINTS} from '../endpoints'
+import {RegisterRequest} from './types';
 
-const REGISTER_URL = '/api/auth/register';
+
+
+const REGISTER_URL = ENDPOINTS.register;
 
 /**
  * Пример запроса регистрации.

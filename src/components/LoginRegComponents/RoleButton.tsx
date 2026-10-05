@@ -27,3 +27,8 @@ export function RoleButton({icon: Icon, label, selected, onClick}: RoleButtonPro
         </button>
     );
 }
+
+function TEST()
+{
+    const test =  import.meta.env.VITE_API_URL;
+}
