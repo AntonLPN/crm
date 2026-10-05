@@ -2,6 +2,8 @@ import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {ChevronDown, Phone} from 'lucide-react';
 import {getCountries, getCountryCallingCode, isValidPhoneNumber, type CountryCode} from 'libphonenumber-js';
+import * as Flags from 'country-flag-icons/react/3x2';
+import {hasFlag} from 'country-flag-icons';
 
 interface PhoneInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
     value: string;
@@ -88,7 +90,7 @@ export function PhoneInput({
                     onClick={() => setIsCountryListOpen((open) => !open)}
                     className="flex h-10 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                    <span aria-hidden="true" className="text-lg leading-none">{getCountryFlag(country)}</span>
+                    <CountryFlag countryCode={country} />
                     <span>+{selectedCountry?.callingCode}</span>
                     <ChevronDown
                         className={`h-4 w-4 text-slate-400 transition-transform ${isCountryListOpen ? 'rotate-180' : ''}`}/>
@@ -113,8 +115,7 @@ export function PhoneInput({
                                     onClick={() => selectCountry(code)}
                                     className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50 ${code === country ? 'bg-blue-50 text-blue-700' : 'text-slate-700'}`}
                                 >
-                                    <span aria-hidden="true"
-                                          className="text-lg leading-none">{getCountryFlag(code)}</span>
+                                    <CountryFlag countryCode={code} />
                                     <span className="min-w-0 flex-1 truncate">{name}</span>
                                     <span className="text-slate-500">+{callingCode}</span>
                                 </button>
@@ -149,8 +150,18 @@ export function PhoneInput({
     );
 }
 
-function getCountryFlag(countryCode: CountryCode): string {
-    return String.fromCodePoint(
-        ...countryCode.split('').map((letter) => 0x1f1e6 + letter.charCodeAt(0) - 65)
-    );
+function CountryFlag({
+    countryCode,
+    className = 'h-3.5 w-5 shrink-0 rounded-[2px] shadow-xs',
+}: {
+    countryCode: CountryCode;
+    className?: string;
+}): React.ReactElement {
+    if (hasFlag(countryCode)) {
+        const Flag = Flags[countryCode as keyof typeof Flags];
+        if (Flag) {
+            return <Flag aria-hidden="true" className={className} />;
+        }
+    }
+    return <span aria-hidden="true" className="text-xs font-semibold">{countryCode}</span>;
 }
