@@ -1,4 +1,4 @@
-﻿export type RegisterRequest = {
+﻿export interface RegisterRequest {
     email: string;
     name: string;
     surname: string;

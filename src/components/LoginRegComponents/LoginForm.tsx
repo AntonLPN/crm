@@ -2,6 +2,7 @@ import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {ArrowRight, Lock, Mail, ShieldCheck} from 'lucide-react';
 import {InputField} from './InputField';
+import {pingServer} from '../../api/auth/apiService';
 
 export function LoginForm(): React.ReactElement {
     const {t} = useTranslation();
@@ -66,6 +67,13 @@ export function LoginForm(): React.ReactElement {
             >
                 {t('login.submit')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
+            </button>
+            <button
+                type="button"
+                onClick={() => void pingServer()}
+                className="w-full border mt-4 border-slate-300 hover:bg-blue-500 text-slate-600  font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-slate-300/30 flex items-center justify-center gap-2 group active:scale-[0.98] hover:text-white"
+            >
+                Тест Ping API
             </button>
         </form>
     );

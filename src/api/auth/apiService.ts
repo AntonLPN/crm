@@ -3,8 +3,30 @@ import {ENDPOINTS} from '../endpoints'
 import {RegisterRequest} from './types';
 
 const REGISTER_URL = ENDPOINTS.register;
-//тсандартный способ запроса
-export async function register (data: RegisterRequest) {
+const PING_URL = ENDPOINTS.ping;
+
+
+export async function pingServer(): Promise<void> {
+    try {
+        const response = await fetch(PING_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            console.error(`Error ping: ${response.status} ${response.statusText}`);
+            return;
+        }
+        console.info('Ping successful');
+    } catch (error) {
+        console.error('Failed to execute ping:', error);
+    }
+}
+
+//стандартный способ запроса
+export async function register(data: RegisterRequest) {
     const response = await fetch(REGISTER_URL, {
         method: 'POST',
         headers: {
@@ -15,7 +37,7 @@ export async function register (data: RegisterRequest) {
     });
 
     if (!response.ok) {
-        throw new Error(`Ошибка регистрации: ${response.status} ${response.statusText}`);
+        throw new Error(`Error registering: ${response.status} ${response.statusText}`);
     }
 }
 
