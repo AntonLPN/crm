@@ -2,25 +2,24 @@ import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {Activity, Lock, Mail, Stethoscope, User} from 'lucide-react';
 import type {CountryCode} from 'libphonenumber-js';
+import type {RegistrationData} from '../../api/auth/types';
 import {InputField} from './InputField';
 import {PhoneInput} from './PhoneInput';
 import {RoleButton} from './RoleButton';
 
-export interface RegistrationData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    country: CountryCode;
-    password: string;
-    role: 'admin' | 'doctor';
-}
-
 interface RegisterFormProps {
     onRegister?: (data: RegistrationData) => void;
+    isSubmitting?: boolean;
+    submitStatus?: 'idle' | 'pending' | 'success' | 'error';
+    submitError?: string;
 }
 
-export function RegisterForm({onRegister}: RegisterFormProps): React.ReactElement {
+export function RegisterForm({
+                                onRegister,
+                                isSubmitting = false,
+                                submitStatus = 'idle',
+                                submitError
+                            }: RegisterFormProps): React.ReactElement {
     const {t} = useTranslation();
     const [role, setRole] = React.useState<RegistrationData['role']>('admin');
     const [phone, setPhone] = React.useState<string>('');
@@ -118,10 +117,20 @@ export function RegisterForm({onRegister}: RegisterFormProps): React.ReactElemen
 
             <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-800/20 flex items-center justify-center gap-2 group active:scale-[0.98]"
             >
-                {t('reg.submit')}
+                {isSubmitting ? t('reg.submitting') : t('reg.submit')}
             </button>
+
+            {submitStatus === 'success' && (
+                <p className="text-center text-sm text-green-700" role="status">{t('reg.success')}</p>
+            )}
+            {submitStatus === 'error' && (
+                <p className="text-center text-sm text-red-600" role="alert">
+                    {t('reg.error')}{submitError ? `: ${submitError}` : ''}
+                </p>
+            )}
 
             <p className="text-center text-xs text-slate-500 mt-4">
                 {t('reg.terms')} <a href="#" className="text-blue-600 hover:underline">{t('reg.policy')}</a>.

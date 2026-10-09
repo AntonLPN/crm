@@ -1,10 +1,15 @@
-import type {RegistrationData} from '../../components/LoginRegComponents/RegisterForm';
 import {ENDPOINTS} from '../endpoints'
-import {RegisterRequest} from './types';
+import {parsePhoneNumberFromString} from 'libphonenumber-js';
+import type {RegistrationData, RegisterRequest} from './types';
 
 const REGISTER_URL = ENDPOINTS.register;
 const PING_URL = ENDPOINTS.ping;
 
+class ApiError extends Error {
+    constructor(public status: number, message: string) {   // public в конструкторе = автосвойство
+        super(message);
+    }
+}
 
 export async function pingServer(): Promise<void> {
     try {
@@ -25,8 +30,48 @@ export async function pingServer(): Promise<void> {
     }
 }
 
-//стандартный способ запроса
-export async function register(data: RegisterRequest) {
+export async function registerUser(data: RegistrationData): Promise<void> {
+    // await new Promise<void>((resolve) => setTimeout(resolve, 10_000)); //for debugging
+    try {
+        const parsedPhone = parsePhoneNumberFromString(data.phone, data.country);
+        if (!parsedPhone?.isValid()) {
+            throw new Error('Enter a valid phone number');
+        }
+
+
+        const request: RegisterRequest = {
+            email: data.email,
+            name: data.firstName,
+            surname: data.lastName,
+            phoneNumber: parsedPhone.number,
+            password: data.password,
+            metadata: {
+                type: data.role
+            }
+        };
+
+        await register(request);
+    } catch (e) {
+        if (e instanceof ApiError) {            // аналог catch (ApiException ex)
+            switch (e.status) {
+                case 401:
+                    console.log('Error authentication');
+                    break;
+                case 409:
+                    console.log('User already exists');
+                    break;
+                default:
+                    console.log('Ошибка сервера');
+            }
+        } else {
+            console.log('Сеть недоступна');     // fetch упал без ответа
+        }
+    }
+
+}
+
+
+export async function register(data: RegisterRequest): Promise<void> {
     const response = await fetch(REGISTER_URL, {
         method: 'POST',
         headers: {
@@ -36,59 +81,9 @@ export async function register(data: RegisterRequest) {
         body: JSON.stringify(data)
     });
 
-    if (!response.ok) {
-        throw new Error(`Error registering: ${response.status} ${response.statusText}`);
+    if (!response.ok) {                              // IsSuccessStatusCode
+        throw new ApiError(response.status, await response.text());
+
     }
 }
 
-//Вызов — через React Query (useMutation)
-// import { useMutation } from '@tanstack/react-query';
-// import { register } from '@/api/auth';
-//
-// function RegisterForm() {
-//     const mutation = useMutation({
-//         mutationFn: register,
-//         onSuccess: (data) => {
-//             console.log('Успех:', data);
-//         },
-//         onError: (err) => {
-//             console.error('Ошибка:', err);
-//         },
-//     });
-//
-//     const handleSubmit = () => {
-//         mutation.mutate({
-//             email: 'user@example.com',
-//             name: 'string',
-//             surname: 'string',
-//             phoneNumber: 'string',
-//             password: 'S1E-]Hu]9!Ki{1zJ}z\\o=/v]yVHcs*D{Qr9i.?]"`^?cU^H!{]XJVQuG_[%,cR|C)&pY`K4EoB1_v',
-//             referralCode: 'string',
-//         });
-//     };
-//
-//     return (
-//         <button onClick={handleSubmit} disabled={mutation.isPending}>
-//         {mutation.isPending ? 'Отправка...' : 'Зарегистрироваться'}
-//         </button>
-// );
-// }
-
-/**
- * Пример запроса регистрации.
- * Замените REGISTER_URL на адрес вашего API и при необходимости
- * адаптируйте тело запроса под формат, который ожидает сервер.
- */
-export async function registerUser(data: RegistrationData): Promise<void> {
-    const response = await fetch(REGISTER_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-        throw new Error(`Ошибка регистрации: ${response.status} ${response.statusText}`);
-    }
-}

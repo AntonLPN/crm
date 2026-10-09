@@ -6,24 +6,20 @@ import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage"
 import {LoginForm} from "../components/LoginRegComponents/LoginForm";
 import {RegisterForm} from "../components/LoginRegComponents/RegisterForm";
 import {LoginRegisterBanner} from "../components/LoginRegComponents/LoginRegisterBanner";
-import {registerUser} from '../api/auth/apiService';
-import type {RegistrationData} from '../components/LoginRegComponents/RegisterForm';
+import {useRegisterMutation} from '../api/auth/useRegisterMutation';
+import type {RegistrationData} from '../api/auth/types';
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
     const {t, i18n} = useTranslation();
+    const registerMutation = useRegisterMutation();
 
     const changeLanguage = (lng: string): void => {
         void i18n.changeLanguage(lng);
     };
 
-    const handleRegister = async (data: RegistrationData): Promise<void> => {
-        try {
-            await registerUser(data);
-            console.info('Регистрация успешно отправлена');
-        } catch (error) {
-            console.error('Не удалось выполнить регистрацию:', error);
-        }
+    const handleRegister = (data: RegistrationData): void => {
+        registerMutation.mutate(data);
     };
 
     return (
@@ -74,7 +70,14 @@ export function App(): React.ReactElement {
 
                             <div
                                 className={`transition-opacity duration-500 ${!isLogin ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
-                                <RegisterForm onRegister={handleRegister}/>
+                                <RegisterForm
+                                    onRegister={handleRegister}
+                                    isSubmitting={registerMutation.isPending}
+                                    submitStatus={registerMutation.status}
+                                    submitError={registerMutation.error instanceof Error
+                                        ? registerMutation.error.message
+                                        : undefined}
+                                />
                             </div>
                         </div>
                     </div>
