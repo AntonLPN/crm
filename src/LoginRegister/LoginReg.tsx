@@ -8,6 +8,7 @@ import {RegisterForm} from "../components/LoginRegComponents/RegisterForm";
 import {LoginRegisterBanner} from "../components/LoginRegComponents/LoginRegisterBanner";
 import {useRegisterMutation} from '../api/auth/useRegisterMutation';
 import type {RegistrationData} from '../api/auth/types';
+import {RegistrationError} from '../api/auth/apiService';
 
 export function App(): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
@@ -20,6 +21,26 @@ export function App(): React.ReactElement {
 
     const handleRegister = (data: RegistrationData): void => {
         registerMutation.mutate(data);
+    };
+
+    const getRegistrationErrorMessage = (): string | undefined => {
+        const error = registerMutation.error;
+        if (!(error instanceof RegistrationError)) {
+            return error ? t('error.serverError') : undefined;
+        }
+
+        switch (error.code) {
+            case 'invalidPhone':
+                return t('reg.phoneInvalid');
+            case 'invalidCredentials':
+                return t('error.invalidCredentials');
+            case 'userAlreadyExists':
+                return t('error.userAlreadyExists');
+            case 'serverError':
+                return t('error.serverError');
+            case 'networkError':
+                return t('error.networkError');
+        }
     };
 
     return (
@@ -74,9 +95,7 @@ export function App(): React.ReactElement {
                                     onRegister={handleRegister}
                                     isSubmitting={registerMutation.isPending}
                                     submitStatus={registerMutation.status}
-                                    submitError={registerMutation.error instanceof Error
-                                        ? registerMutation.error.message
-                                        : undefined}
+                                    submitError={getRegistrationErrorMessage()}
                                 />
                             </div>
                         </div>

@@ -11,6 +11,20 @@ class ApiError extends Error {
     }
 }
 
+export type RegistrationErrorCode =
+    | 'invalidPhone'
+    | 'invalidCredentials'
+    | 'userAlreadyExists'
+    | 'serverError'
+    | 'networkError';
+
+export class RegistrationError extends Error {
+    constructor(public code: RegistrationErrorCode) {
+        super(code);
+        this.name = 'RegistrationError';
+    }
+}
+
 export async function pingServer(): Promise<void> {
     try {
         const response = await fetch(PING_URL, {
@@ -31,13 +45,12 @@ export async function pingServer(): Promise<void> {
 }
 
 export async function registerUser(data: RegistrationData): Promise<void> {
+    const parsedPhone = parsePhoneNumberFromString(data.phone, data.country);
+    if (!parsedPhone?.isValid()) {
+        throw new RegistrationError('invalidPhone');
+    }
     // await new Promise<void>((resolve) => setTimeout(resolve, 10_000)); //for debugging
     try {
-        const parsedPhone = parsePhoneNumberFromString(data.phone, data.country);
-        if (!parsedPhone?.isValid()) {
-            throw new Error('Enter a valid phone number');
-        }
-
 
         const request: RegisterRequest = {
             email: data.email,
@@ -52,20 +65,15 @@ export async function registerUser(data: RegistrationData): Promise<void> {
 
         await register(request);
     } catch (e) {
-        if (e instanceof ApiError) {            // аналог catch (ApiException ex)
-            switch (e.status) {
-                case 401:
-                    console.log('Error authentication');
-                    break;
-                case 409:
-                    console.log('User already exists');
-                    break;
-                default:
-                    console.log('Ошибка сервера');
-            }
-        } else {
-            console.log('Сеть недоступна');     // fetch упал без ответа
+        if (e instanceof ApiError) {
+            const code: RegistrationErrorCode = e.status === 401
+                ? 'invalidCredentials'
+                : e.status === 409
+                    ? 'userAlreadyExists'
+                    : 'serverError';
+            throw new RegistrationError(code);
         }
+        throw new RegistrationError('networkError');
     }
 
 }
@@ -86,4 +94,3 @@ export async function register(data: RegisterRequest): Promise<void> {
 
     }
 }
-

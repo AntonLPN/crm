@@ -1,0 +1,9 @@
+{
+  "error": {
+    "invalidCredentials": "Invalid email or password",
+    "userNotFound": "User not found",
+    "userAlreadyExists": "User already exists",
+    "serverError": "Server error, please try again later",
+    "networkError": "Network error, please check your connection"
+  }
+}
