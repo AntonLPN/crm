@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {Activity, Lock, Mail, Stethoscope, User} from 'lucide-react';
-import type {CountryCode} from 'libphonenumber-js';
+import {isValidPhoneNumber, type CountryCode} from 'libphonenumber-js';
 import type {RegistrationData} from '../../api/auth/types';
 import {InputField} from './InputField';
 import {PhoneInput} from './PhoneInput';
@@ -30,11 +30,21 @@ export function RegisterForm({
     const [firstName, setFirstName] = React.useState<string>('');
     const [lastName, setLastName] = React.useState<string>('');
     const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
+    const [agreedToTerms, setAgreedToTerms] = React.useState(false);
+    const isFormValid =
+        firstName.trim().length > 0 &&
+        lastName.trim().length > 0 &&
+        /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(email) &&
+        isValidPhoneNumber(phone, country) &&
+        new RegExp(patternPassword).test(password) &&
+        confirmPassword.length > 0 &&
+        confirmPassword === password &&
+        agreedToTerms;
     const confirmPasswordMismatch = confirmPassword.length > 0 && confirmPassword !== password;
 
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>): void => {
         event.preventDefault();
-        if (confirmPasswordMismatch) {
+        if (!isFormValid) {
             return;
         }
 
@@ -135,10 +145,21 @@ export function RegisterForm({
                 </div>
             </div>
 
+            <label className="flex items-start gap-3 text-sm text-slate-600 mt-8">
+                <input
+                    type="checkbox"
+                    required
+                    checked={agreedToTerms}
+                    onChange={(event) => setAgreedToTerms(event.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{t('reg.agreeToTerms')}</span>
+            </label>
+
             <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full mt-6 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-800/20 flex items-center justify-center gap-2 group active:scale-[0.98]"
+                disabled={isSubmitting || !isFormValid}
+                className="w-full mt-10 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-slate-800/20 flex items-center justify-center gap-2 group active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-slate-800 disabled:active:scale-100"
             >
                 {isSubmitting ? t('reg.submitting') : t('reg.submit')}
             </button>
@@ -152,9 +173,6 @@ export function RegisterForm({
                 </p>
             )}
 
-            <p className="text-center text-xs text-slate-500 mt-4">
-                {t('reg.terms')} <a href="#" className="text-blue-600 hover:underline">{t('reg.policy')}</a>.
-            </p>
         </form>
     );
 }
