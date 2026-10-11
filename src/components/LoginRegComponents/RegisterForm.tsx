@@ -86,13 +86,20 @@ export function RegisterForm({
                     icon={Lock}
                     type="password"
                     placeholder={t('reg.password')}
+                    pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$"
+                    title={t('reg.passwordRequirements')}
+                    aria-describedby="password-requirements"
                     onChange={(event) => setPassword(event.target.value)}
                     required
                 />
+                <p className="-mt-3 text-xs text-slate-500" id="password-requirements">
+                    {t('reg.passwordRequirements')}
+                </p>
                 <InputField
                     icon={Lock}
                     type="password"
                     placeholder={t('reg.confirm')}
+                    pattern={password}
                     required
                 />
             </div>

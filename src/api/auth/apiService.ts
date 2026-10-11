@@ -88,8 +88,7 @@ export async function register(data: RegisterRequest): Promise<void> {
         },
         body: JSON.stringify(data)
     });
-
-    if (!response.ok) {                              // IsSuccessStatusCode
+    if (!response.ok) {
         throw new ApiError(response.status, await response.text());
 
     }

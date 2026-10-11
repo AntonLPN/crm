@@ -19,18 +19,27 @@ export const InputField: React.FC<InputFieldProps> = ({
     const {t} = useTranslation();
     const [showPassword, setShowPassword] = React.useState(false);
     const [emailInvalid, setEmailInvalid] = React.useState(false);
+    const [passwordInvalid, setPasswordInvalid] = React.useState(false);
     const isPassword = type === 'password';
     const isEmail = type === 'email';
+    const hasPasswordPattern = isPassword && Boolean(props.pattern);
+    const inputInvalid = emailInvalid || passwordInvalid;
     const inputType = isPassword && showPassword ? 'text' : type;
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         if (isEmail) {
             setEmailInvalid(isInvalidEmail(event.currentTarget));
+        }
+        if (hasPasswordPattern) {
+            setPasswordInvalid(isInvalidPassword(event.currentTarget));
         }
         onChange?.(event);
     };
     const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
         if (isEmail) {
             setEmailInvalid(isInvalidEmail(event.currentTarget));
+        }
+        if (hasPasswordPattern) {
+            setPasswordInvalid(isInvalidPassword(event.currentTarget));
         }
         onBlur?.(event);
     };
@@ -47,8 +56,8 @@ export const InputField: React.FC<InputFieldProps> = ({
                 <input
                     {...props}
                     type={inputType}
-                    className={`w-full ${Icon ? 'pl-11' : 'px-4'} ${isPassword ? 'pr-11' : 'pr-4'} py-3.5 border ${emailInvalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} rounded-xl bg-white focus:bg-blue-50 focus:ring-4 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium ${className}`}
-                    aria-invalid={isEmail ? emailInvalid : props['aria-invalid']}
+                    className={`w-full ${Icon ? 'pl-11' : 'px-4'} ${isPassword ? 'pr-11' : 'pr-4'} py-3.5 border ${inputInvalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} rounded-xl bg-white focus:bg-blue-50 focus:ring-4 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium ${className}`}
+                    aria-invalid={isEmail ? emailInvalid : hasPasswordPattern ? passwordInvalid : props['aria-invalid']}
                     aria-describedby={emailInvalid ? 'email-format-error' : props['aria-describedby']}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -83,4 +92,8 @@ function isInvalidEmail(input: HTMLInputElement): boolean {
         input.validity.typeMismatch ||
         !/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(input.value)
     );
+}
+
+function isInvalidPassword(input: HTMLInputElement): boolean {
+    return input.value.length > 0 && input.validity.patternMismatch;
 }
