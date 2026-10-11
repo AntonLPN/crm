@@ -15,22 +15,28 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({
-                                onRegister,
-                                isSubmitting = false,
-                                submitStatus = 'idle',
-                                submitError
-                            }: RegisterFormProps): React.ReactElement {
+                                 onRegister,
+                                 isSubmitting = false,
+                                 submitStatus = 'idle',
+                                 submitError
+                             }: RegisterFormProps): React.ReactElement {
     const {t} = useTranslation();
     const [role, setRole] = React.useState<RegistrationData['role']>('admin');
     const [phone, setPhone] = React.useState<string>('');
     const [country, setCountry] = React.useState<CountryCode>('UA');
     const [email, setEmail] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
+    const [confirmPassword, setConfirmPassword] = React.useState<string>('');
     const [firstName, setFirstName] = React.useState<string>('');
     const [lastName, setLastName] = React.useState<string>('');
+    const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
+    const confirmPasswordMismatch = confirmPassword.length > 0 && confirmPassword !== password;
 
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>): void => {
         event.preventDefault();
+        if (confirmPasswordMismatch) {
+            return;
+        }
 
         onRegister?.({
             firstName,
@@ -86,7 +92,7 @@ export function RegisterForm({
                     icon={Lock}
                     type="password"
                     placeholder={t('reg.password')}
-                    pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$"
+                    pattern={patternPassword}
                     title={t('reg.passwordRequirements')}
                     aria-describedby="password-requirements"
                     onChange={(event) => setPassword(event.target.value)}
@@ -99,9 +105,16 @@ export function RegisterForm({
                     icon={Lock}
                     type="password"
                     placeholder={t('reg.confirm')}
-                    pattern={password}
+                    validationInvalid={confirmPasswordMismatch}
+                    aria-describedby="confirm-password-error"
+                    onChange={(event) => setConfirmPassword(event.target.value)}
                     required
                 />
+                {confirmPasswordMismatch && (
+                    <p id="confirm-password-error" className="-mt-3 text-sm text-red-600" role="alert">
+                        {t('reg.confirmPasswordMismatch')}
+                    </p>
+                )}
             </div>
 
             <div className="pt-2">

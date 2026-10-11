@@ -5,11 +5,13 @@ import {useTranslation} from 'react-i18next';
 interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     icon?: LucideIcon;
     containerClassName?: string;
+    validationInvalid?: boolean;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({
                                                           icon: Icon,
                                                           containerClassName = '',
+                                                          validationInvalid = false,
                                                           className = '',
                                                           type = 'text', //
                                                           onChange,
@@ -23,7 +25,7 @@ export const InputField: React.FC<InputFieldProps> = ({
     const isPassword = type === 'password';
     const isEmail = type === 'email';
     const hasPasswordPattern = isPassword && Boolean(props.pattern);
-    const inputInvalid = emailInvalid || passwordInvalid;
+    const inputInvalid = emailInvalid || passwordInvalid || validationInvalid;
     const inputType = isPassword && showPassword ? 'text' : type;
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         if (isEmail) {
@@ -57,7 +59,7 @@ export const InputField: React.FC<InputFieldProps> = ({
                     {...props}
                     type={inputType}
                     className={`w-full ${Icon ? 'pl-11' : 'px-4'} ${isPassword ? 'pr-11' : 'pr-4'} py-3.5 border ${inputInvalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} rounded-xl bg-white focus:bg-blue-50 focus:ring-4 transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium ${className}`}
-                    aria-invalid={isEmail ? emailInvalid : hasPasswordPattern ? passwordInvalid : props['aria-invalid']}
+                    aria-invalid={isEmail ? emailInvalid : hasPasswordPattern ? passwordInvalid || validationInvalid : validationInvalid || props['aria-invalid']}
                     aria-describedby={emailInvalid ? 'email-format-error' : props['aria-describedby']}
                     onChange={handleChange}
                     onBlur={handleBlur}
