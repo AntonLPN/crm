@@ -20,6 +20,7 @@ export function RegisterForm({
                                  submitStatus = 'idle',
                                  submitError
                              }: RegisterFormProps): React.ReactElement {
+    const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
     const {t} = useTranslation();
     const [role, setRole] = React.useState<RegistrationData['role']>('admin');
     const [phone, setPhone] = React.useState<string>('');
@@ -29,7 +30,6 @@ export function RegisterForm({
     const [confirmPassword, setConfirmPassword] = React.useState<string>('');
     const [firstName, setFirstName] = React.useState<string>('');
     const [lastName, setLastName] = React.useState<string>('');
-    const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
     const [agreedToTerms, setAgreedToTerms] = React.useState(false);
     const isFormValid =
         firstName.trim().length > 0 &&

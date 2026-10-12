@@ -3,19 +3,36 @@ import {useTranslation} from 'react-i18next';
 import {ArrowRight, Lock, Mail, ShieldCheck} from 'lucide-react';
 import {InputField} from './InputField';
 import {pingServer} from '../../api/auth/apiService';
+import {LoginData} from "../../api/auth/types";
 
-export function LoginForm(): React.ReactElement {
+interface LoginFormProps {
+    onLogin?: (data : LoginData) => void;
+    isSubmitting?: boolean;
+    submitStatus?: 'idle' | 'pending' | 'success' | 'error';
+    submitError?: string;
+}
+
+export function LoginForm({onLogin, isSubmitting, submitStatus, submitError}: LoginFormProps): React.ReactElement {
     const {t} = useTranslation();
 
+    const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
     const [email, setEmail] = React.useState<string>('');
     const [password, setPassword] = React.useState<string>('');
-
+    const isFormValid =
+        /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(email) &&
+        new RegExp(patternPassword).test(password);
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>): void => {
         event.preventDefault();
+        if (!isFormValid) {
+            return;
+        }
         console.log('Данные формы для отправки:', {
             email,
             password
         });
+        if (onLogin) {
+            onLogin({email, password});
+        }
     };
 
     return (
@@ -36,9 +53,15 @@ export function LoginForm(): React.ReactElement {
                     icon={Lock}
                     type="password"
                     placeholder={t('login.password')}
+                    pattern={patternPassword}
+                    title={t('reg.passwordRequirements')}
+                    aria-describedby={"password-requirements"}
                     onChange={(event) => setPassword(event.target.value)}
                     required
                 />
+                <p className="-mt-3 text-xs text-slate-500" id="password-requirements">
+                    {t('reg.passwordRequirements')}
+                </p>
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -68,13 +91,13 @@ export function LoginForm(): React.ReactElement {
                 {t('login.submit')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
             </button>
-            <button
-                type="button"
-                onClick={() => void pingServer()}
-                className="w-full border mt-4 border-slate-300 hover:bg-blue-500 text-slate-600  font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-slate-300/30 flex items-center justify-center gap-2 group active:scale-[0.98] hover:text-white"
-            >
-                Тест Ping API
-            </button>
+            {/*<button*/}
+            {/*    type="button"*/}
+            {/*    onClick={() => void pingServer()}*/}
+            {/*    className="w-full border mt-4 border-slate-300 hover:bg-blue-500 text-slate-600  font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-slate-300/30 flex items-center justify-center gap-2 group active:scale-[0.98] hover:text-white"*/}
+            {/*>*/}
+            {/*    Тест Ping API*/}
+            {/*</button>*/}
         </form>
     );
 }

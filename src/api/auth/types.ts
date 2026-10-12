@@ -10,6 +10,12 @@ export interface RegistrationData {
     role: 'admin' | 'doctor';
 }
 
+export interface LoginData {
+    email: string;
+    password: string;
+
+}
+
 export interface RegisterRequest {
     email: string;
     name?: string | null;
@@ -20,4 +26,9 @@ export interface RegisterRequest {
     metadata?: {
         type: string;
     } | null;
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
 }

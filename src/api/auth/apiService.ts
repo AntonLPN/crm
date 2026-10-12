@@ -1,6 +1,6 @@
 import {ENDPOINTS} from '../endpoints'
 import {parsePhoneNumberFromString} from 'libphonenumber-js';
-import type {RegistrationData, RegisterRequest} from './types';
+import type {RegistrationData, RegisterRequest, LoginRequest} from './types';
 
 const REGISTER_URL = ENDPOINTS.register;
 const PING_URL = ENDPOINTS.ping;
@@ -18,10 +18,23 @@ export type RegistrationErrorCode =
     | 'serverError'
     | 'networkError';
 
+export type LoginErrorCode =
+    | 'invalidCredentials'
+    | 'serverError'
+    | 'networkError';
+
+
 export class RegistrationError extends Error {
     constructor(public code: RegistrationErrorCode) {
         super(code);
         this.name = 'RegistrationError';
+    }
+}
+
+export class LoginError extends Error {
+    constructor(public code: LoginErrorCode) {
+        super(code);
+        this.name = 'LoginError';
     }
 }
 
@@ -41,6 +54,21 @@ export async function pingServer(): Promise<void> {
         console.info('Ping successful');
     } catch (error) {
         console.error('Failed to execute ping:', error);
+    }
+}
+
+async function register(data: RegisterRequest): Promise<void> {
+    const response = await fetch(REGISTER_URL, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        throw new ApiError(response.status, await response.text());
+
     }
 }
 
@@ -79,8 +107,8 @@ export async function registerUser(data: RegistrationData): Promise<void> {
 }
 
 
-export async function register(data: RegisterRequest): Promise<void> {
-    const response = await fetch(REGISTER_URL, {
+async function login(data: LoginRequest): Promise<void> {
+    const response = await fetch(ENDPOINTS.login, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -90,6 +118,21 @@ export async function register(data: RegisterRequest): Promise<void> {
     });
     if (!response.ok) {
         throw new ApiError(response.status, await response.text());
+    }
+}
 
+export async function loginUser(data: LoginRequest): Promise<void> {
+    try {
+        if (/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(data.email)) {
+            await login(data);
+        }
+    } catch (e) {
+        if (e instanceof ApiError) {
+            const code: LoginErrorCode = e.status === 400
+                ? 'invalidCredentials'
+                : 'serverError';
+            throw new LoginError(code);
+        }
+        throw new LoginError('networkError');
     }
 }
