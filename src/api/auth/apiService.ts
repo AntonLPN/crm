@@ -20,6 +20,7 @@ export type RegistrationErrorCode =
 
 export type LoginErrorCode =
     | 'invalidCredentials'
+    | 'mfaRequired'
     | 'serverError'
     | 'networkError';
 
@@ -110,6 +111,7 @@ export async function registerUser(data: RegistrationData): Promise<void> {
 async function login(data: LoginRequest): Promise<void> {
     const response = await fetch(ENDPOINTS.login, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -119,14 +121,39 @@ async function login(data: LoginRequest): Promise<void> {
     if (!response.ok) {
         throw new ApiError(response.status, await response.text());
     }
+
+    let result: unknown;
+    try {
+        result = await response.json();
+    } catch {
+        throw new LoginError('serverError');
+    }
+
+    if (
+        typeof result !== 'object' ||
+        result === null ||
+        !('isMfaRequired' in result) ||
+        typeof result.isMfaRequired !== 'boolean'
+    ) {
+        throw new LoginError('serverError');
+    }
+
+    if (result.isMfaRequired) {
+        throw new LoginError('mfaRequired');
+    }
 }
 
 export async function loginUser(data: LoginRequest): Promise<void> {
+    if (!/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(data.email)) {
+        throw new LoginError('invalidCredentials');
+    }
+
     try {
-        if (/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(data.email)) {
-            await login(data);
-        }
+        await login(data);
     } catch (e) {
+        if (e instanceof LoginError) {
+            throw e;
+        }
         if (e instanceof ApiError) {
             const code: LoginErrorCode = e.status === 400
                 ? 'invalidCredentials'

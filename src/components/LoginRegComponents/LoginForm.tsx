@@ -2,17 +2,15 @@ import * as React from 'react';
 import {useTranslation} from 'react-i18next';
 import {ArrowRight, Lock, Mail, ShieldCheck} from 'lucide-react';
 import {InputField} from './InputField';
-import {pingServer} from '../../api/auth/apiService';
-import {LoginData} from "../../api/auth/types";
+import type {LoginData} from "../../api/auth/types";
 
 interface LoginFormProps {
-    onLogin?: (data : LoginData) => void;
-    isSubmitting?: boolean;
-    submitStatus?: 'idle' | 'pending' | 'success' | 'error';
+    onLogin: (data: LoginData) => void;
+    isSubmitting: boolean;
     submitError?: string;
 }
 
-export function LoginForm({onLogin, isSubmitting, submitStatus, submitError}: LoginFormProps): React.ReactElement {
+export function LoginForm({onLogin, isSubmitting, submitError}: LoginFormProps): React.ReactElement {
     const {t} = useTranslation();
 
     const patternPassword = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$";
@@ -26,13 +24,7 @@ export function LoginForm({onLogin, isSubmitting, submitStatus, submitError}: Lo
         if (!isFormValid) {
             return;
         }
-        console.log('Данные формы для отправки:', {
-            email,
-            password
-        });
-        if (onLogin) {
-            onLogin({email, password});
-        }
+        onLogin({email, password});
     };
 
     return (
@@ -86,11 +78,17 @@ export function LoginForm({onLogin, isSubmitting, submitStatus, submitError}: Lo
 
             <button
                 type="submit"
-                className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 group active:scale-[0.98]"
+                disabled={isSubmitting}
+                className="w-full mt-4 bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 group active:scale-[0.98]"
             >
-                {t('login.submit')}
+                {isSubmitting ? t('login.submitting') : t('login.submit')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
             </button>
+            {submitError && (
+                <p className="text-sm text-red-600 text-center" role="alert">
+                    {submitError}
+                </p>
+            )}
             {/*<button*/}
             {/*    type="button"*/}
             {/*    onClick={() => void pingServer()}*/}

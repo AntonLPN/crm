@@ -7,13 +7,21 @@ import {LoginForm} from "../components/LoginRegComponents/LoginForm";
 import {RegisterForm} from "../components/LoginRegComponents/RegisterForm";
 import {LoginRegisterBanner} from "../components/LoginRegComponents/LoginRegisterBanner";
 import {useRegisterMutation} from '../api/auth/useRegisterMutation';
-import type {RegistrationData} from '../api/auth/types';
-import {RegistrationError} from '../api/auth/apiService';
+import type {LoginData, RegistrationData} from '../api/auth/types';
+import {LoginError, loginUser, RegistrationError} from '../api/auth/apiService';
+import {useNavigate} from 'react-router-dom';
 
-export function App(): React.ReactElement {
+interface LoginRegisterPageProps {
+    onLoginSuccess: () => void;
+}
+
+export function LoginRegisterPage({onLoginSuccess}: LoginRegisterPageProps): React.ReactElement {
     const [isLogin, setIsLogin] = React.useState<boolean>(true);
+    const [isLoginPending, setIsLoginPending] = React.useState(false);
+    const [loginError, setLoginError] = React.useState<string>();
     const {t, i18n} = useTranslation();
     const registerMutation = useRegisterMutation();
+    const navigate = useNavigate();
 
     const changeLanguage = (lng: string): void => {
         void i18n.changeLanguage(lng);
@@ -21,6 +29,37 @@ export function App(): React.ReactElement {
 
     const handleRegister = (data: RegistrationData): void => {
         registerMutation.mutate(data);
+    };
+
+    const handleLogin = async (data: LoginData): Promise<void> => {
+        setIsLoginPending(true);
+        setLoginError(undefined);
+        try {
+            await loginUser(data);
+            onLoginSuccess();
+            navigate('/dashboard', {replace: true});
+        } catch (error) {
+            if (error instanceof LoginError) {
+                switch (error.code) {
+                    case 'invalidCredentials':
+                        setLoginError(t('error.invalidCredentials'));
+                        break;
+                    case 'mfaRequired':
+                        setLoginError(t('login.mfaRequired'));
+                        break;
+                    case 'serverError':
+                        setLoginError(t('error.serverError'));
+                        break;
+                    case 'networkError':
+                        setLoginError(t('error.networkError'));
+                        break;
+                }
+            } else {
+                setLoginError(t('error.serverError'));
+            }
+        } finally {
+            setIsLoginPending(false);
+        }
     };
 
     const getRegistrationErrorMessage = (): string | undefined => {
@@ -86,7 +125,11 @@ export function App(): React.ReactElement {
                         <div className="mt-6">
                             <div
                                 className={`transition-opacity duration-500 ${isLogin ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
-                                <LoginForm/>
+                                <LoginForm
+                                    onLogin={(data) => void handleLogin(data)}
+                                    isSubmitting={isLoginPending}
+                                    submitError={loginError}
+                                />
                             </div>
 
                             <div
