@@ -5,5 +5,7 @@ if (!API_URL) {
 export const ENDPOINTS = {
     ping: `${API_URL}/ping`,
     register: `${API_URL}/api/auth/register`,
-    login: `${API_URL}/api/auth/login`
+    login: `${API_URL}/api/auth/login`,
+    antiforgery: `${API_URL}/api/authentication/csrf`,
+    refreshCookie: `${API_URL}/api/authentication/refresh-cookie`
 } as const;

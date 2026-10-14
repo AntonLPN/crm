@@ -4,6 +4,7 @@ import type {RegistrationData, RegisterRequest, LoginRequest} from './types';
 
 const REGISTER_URL = ENDPOINTS.register;
 const PING_URL = ENDPOINTS.ping;
+let sessionRefreshPromise: Promise<boolean> | undefined;
 
 class ApiError extends Error {
     constructor(public status: number, message: string) {   // public в конструкторе = автосвойство
@@ -37,6 +38,84 @@ export class LoginError extends Error {
         super(code);
         this.name = 'LoginError';
     }
+}
+
+export class SessionRefreshError extends Error {
+    constructor() {
+        super('Could not verify the current session.');
+        this.name = 'SessionRefreshError';
+    }
+}
+
+async function performSessionRefresh(): Promise<boolean> {
+    const antiforgeryResponse = await fetch(ENDPOINTS.antiforgery, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {'Accept': 'application/json'}
+    });
+    if (!antiforgeryResponse.ok) {
+        throw new SessionRefreshError();
+    }
+
+    let antiforgeryResult: unknown;
+    try {
+        antiforgeryResult = await antiforgeryResponse.json();
+    } catch {
+        throw new SessionRefreshError();
+    }
+
+    if (
+        typeof antiforgeryResult !== 'object' ||
+        antiforgeryResult === null ||
+        !('requestToken' in antiforgeryResult) ||
+        typeof antiforgeryResult.requestToken !== 'string'
+    ) {
+        throw new SessionRefreshError();
+    }
+
+    const response = await fetch(ENDPOINTS.refreshCookie, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': antiforgeryResult.requestToken
+        }
+    });
+
+    if (response.status === 401) {
+        return false;
+    }
+    if (!response.ok) {
+        throw new SessionRefreshError();
+    }
+
+    let refreshResult: unknown;
+    try {
+        refreshResult = await response.json();
+    } catch {
+        throw new SessionRefreshError();
+    }
+
+    if (
+        typeof refreshResult !== 'object' ||
+        refreshResult === null ||
+        !('accessToken' in refreshResult) ||
+        typeof refreshResult.accessToken !== 'string' ||
+        refreshResult.accessToken.length === 0
+    ) {
+        throw new SessionRefreshError();
+    }
+
+    return true;
+}
+
+export function refreshSession(): Promise<boolean> {
+    if (!sessionRefreshPromise) {
+        sessionRefreshPromise = performSessionRefresh().finally(() => {
+            sessionRefreshPromise = undefined;
+        });
+    }
+    return sessionRefreshPromise;
 }
 
 export async function pingServer(): Promise<void> {
