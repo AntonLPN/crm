@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {BrowserRouter, Navigate, Outlet, Route, Routes} from 'react-router-dom';
+import {BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import {LoaderCircle} from 'lucide-react';
 import {DashboardPage} from './Dashboard/DashboardPage';
 import {LoginRegisterPage} from './LoginRegister/LoginReg';
@@ -18,7 +18,10 @@ function RequireAuth({authState}: RequireAuthProps): React.ReactElement {
     }
     return authState === 'authenticated' ? <Outlet/> : <Navigate to="/" replace/>;
 }
-
+function DevDashboardPreview(): React.ReactElement {
+    const navigate = useNavigate();
+    return <DashboardPage onLogout={() => navigate('/')}/>;
+}
 function SessionStatus(): React.ReactElement {
     const {t} = useTranslation();
     return (
@@ -32,11 +35,30 @@ function SessionStatus(): React.ReactElement {
 }
 
 export function App(): React.ReactElement {
+    return (
+        <BrowserRouter>
+            <AppRoutes/>
+        </BrowserRouter>
+    );
+}
+
+function AppRoutes(): React.ReactElement {
     const [authState, setAuthState] = React.useState<AuthState>('checking');
     const [retryCount, setRetryCount] = React.useState(0);
     const {t} = useTranslation();
+    const location = useLocation();
+    const initialPath = React.useRef(location.pathname);
 
     React.useEffect(() => {
+        if (
+            import.meta.env.DEV &&
+            (initialPath.current === '/' ||
+                initialPath.current === '/__dev/dashboard' ||
+                initialPath.current === '/__dev/login')
+        ) {
+            return;
+        }
+
         let isCurrent = true;
         void refreshSession()
             .then((isAuthenticated) => {
@@ -64,37 +86,49 @@ export function App(): React.ReactElement {
     };
 
     return (
-        <BrowserRouter>
-            <Routes>
+        <Routes>
+            <Route
+                path="/"
+                element={import.meta.env.DEV
+                    ? <LoginRegisterPage onLoginSuccess={() => setAuthState('authenticated')}/>
+                    : authState === 'checking'
+                    ? <SessionStatus/>
+                    : authState === 'error'
+                        ? (
+                            <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 px-5 text-center text-slate-700">
+                                <p role="alert">{t('session.failed')}</p>
+                                <button
+                                    type="button"
+                                    onClick={retrySessionRefresh}
+                                    className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+                                >
+                                    {t('session.retry')}
+                                </button>
+                            </main>
+                        )
+                        : authState === 'authenticated'
+                            ? <Navigate to="/dashboard" replace/>
+                            : <LoginRegisterPage onLoginSuccess={() => setAuthState('authenticated')}/>}
+            />
+            {import.meta.env.DEV && (
                 <Route
-                    path="/"
-                    element={authState === 'checking'
-                        ? <SessionStatus/>
-                        : authState === 'error'
-                            ? (
-                                <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 px-5 text-center text-slate-700">
-                                    <p role="alert">{t('session.failed')}</p>
-                                    <button
-                                        type="button"
-                                        onClick={retrySessionRefresh}
-                                        className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
-                                    >
-                                        {t('session.retry')}
-                                    </button>
-                                </main>
-                            )
-                            : authState === 'authenticated'
-                        ? <Navigate to="/dashboard" replace/>
-                        : <LoginRegisterPage onLoginSuccess={() => setAuthState('authenticated')}/>}
+                    path="/__dev/login"
+                    element={<LoginRegisterPage onLoginSuccess={() => setAuthState('authenticated')}/>}
                 />
-                <Route element={<RequireAuth authState={authState}/>}>
-                    <Route
-                        path="/dashboard"
-                        element={<DashboardPage onLogout={() => setAuthState('anonymous')}/>}
-                    />
-                </Route>
-                <Route path="*" element={<Navigate to="/" replace/>}/>
-            </Routes>
-        </BrowserRouter>
+            )}
+            <Route element={<RequireAuth authState={authState}/>}>
+                <Route
+                    path="/dashboard"
+                    element={<DashboardPage onLogout={() => setAuthState('anonymous')}/>}
+                />
+            </Route>
+            {import.meta.env.DEV && (
+                <Route
+                    path="/__dev/dashboard"
+                    element={<DevDashboardPreview/>}
+                />
+            )}
+            <Route path="*" element={<Navigate to="/" replace/>}/>
+        </Routes>
     );
 }
