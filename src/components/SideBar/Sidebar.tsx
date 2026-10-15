@@ -11,6 +11,7 @@ import {
     Stethoscope,
     Sun,
     User,
+    X,
     type LucideIcon
 } from 'lucide-react';
 import {useTheme, type Theme} from './ThemeProvider';
@@ -26,9 +27,25 @@ interface SidebarProps {
     onLogout: () => void;
     onAccountClick?: () => void;
     appName?: string;
+    /** Мобильный режим: открыта ли выезжающая панель */
+    mobileOpen?: boolean;
+    /** Мобильный режим: закрыть выезжающую панель */
+    onMobileClose?: () => void;
 }
 
 const COLLAPSED_KEY = 'sidebar-collapsed';
+
+function useMediaQuery(query: string): boolean {
+    const [matches, setMatches] = React.useState(() => window.matchMedia(query).matches);
+    React.useEffect(() => {
+        const media = window.matchMedia(query);
+        const onChange = (): void => setMatches(media.matches);
+        onChange();
+        media.addEventListener('change', onChange);
+        return () => media.removeEventListener('change', onChange);
+    }, [query]);
+    return matches;
+}
 
 const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40';
 
@@ -36,20 +53,25 @@ export function Sidebar({
                             user,
                             onLogout,
                             onAccountClick,
-                            appName = 'Diastema'
+                            appName = 'Diastema',
+                            mobileOpen = false,
+                            onMobileClose
                         }: SidebarProps): React.ReactElement {
     const {t} = useTranslation();
-    const [collapsed, setCollapsed] = React.useState<boolean>(() => {
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+    const [collapsedPref, setCollapsedPref] = React.useState<boolean>(() => {
         try {
             return localStorage.getItem(COLLAPSED_KEY) === '1';
         } catch {
             return false;
         }
     });
+    // на телефоне панель всегда полная (в выезжающем меню иконки без подписей не нужны)
+    const collapsed = collapsedPref && isDesktop;
     const [settingsOpen, setSettingsOpen] = React.useState(false);
 
     const toggleCollapsed = (): void => {
-        setCollapsed((prev) => {
+        setCollapsedPref((prev) => {
             const next = !prev;
             try {
                 localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0');
@@ -62,7 +84,7 @@ export function Sidebar({
     const handleSettingsClick = (): void => {
         if (collapsed) {
             // в свёрнутом виде подменю некуда рисовать: разворачиваем панель и открываем настройки
-            setCollapsed(false);
+            setCollapsedPref(false);
             setSettingsOpen(true);
             return;
         }
@@ -71,7 +93,9 @@ export function Sidebar({
 
     return (
         <aside
-            className={`flex h-full shrink-0 flex-col rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 transition-[width] duration-200 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 ${collapsed ? 'w-[72px]' : 'w-72'}`}
+            className={`fixed inset-y-3 left-3 z-40 flex w-72 flex-col rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 transition-[transform,visibility,width] duration-200 max-md:shadow-2xl dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 md:static md:inset-auto md:z-auto md:h-full md:shrink-0 md:translate-x-0 ${
+                mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)] max-md:invisible'
+            } ${collapsed ? 'md:w-[72px]' : 'md:w-72'}`}
             aria-label={t('sidebar.label', 'Боковая панель')}
         >
             {/* Шапка */}
@@ -92,9 +116,17 @@ export function Sidebar({
                     onClick={toggleCollapsed}
                     aria-label={collapsed ? t('sidebar.expand', 'Развернуть панель') : t('sidebar.collapse', 'Свернуть панель')}
                     aria-expanded={!collapsed}
-                    className={`rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${focusRing}`}
+                    className={`rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 max-md:hidden dark:hover:bg-slate-800 dark:hover:text-slate-200 ${focusRing}`}
                 >
                     <PanelLeft className="h-5 w-5"/>
+                </button>
+                <button
+                    type="button"
+                    onClick={onMobileClose}
+                    aria-label={t('sidebar.close', 'Закрыть меню')}
+                    className={`rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 md:hidden dark:hover:bg-slate-800 dark:hover:text-slate-200 ${focusRing}`}
+                >
+                    <X className="h-5 w-5"/>
                 </button>
             </div>
 
@@ -123,8 +155,14 @@ export function Sidebar({
             <AccountMenu
                 user={user}
                 collapsed={collapsed}
-                onAccountClick={onAccountClick}
-                onLogout={onLogout}
+                onAccountClick={() => {
+                    onAccountClick?.();
+                    onMobileClose?.();
+                }}
+                onLogout={() => {
+                    onMobileClose?.();
+                    onLogout();
+                }}
             />
         </aside>
     );
