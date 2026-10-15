@@ -4,7 +4,9 @@ import type {RegistrationData, RegisterRequest, LoginRequest} from './types';
 
 const REGISTER_URL = ENDPOINTS.register;
 const PING_URL = ENDPOINTS.ping;
-let sessionRefreshPromise: Promise<boolean> | undefined;
+let accessToken: string | null = null;
+let sessionRefreshPromise: Promise<string | null> | undefined;
+let authSessionGeneration = 0;
 
 class ApiError extends Error {
     constructor(public status: number, message: string) {   // public в конструкторе = автосвойство
@@ -47,7 +49,14 @@ export class SessionRefreshError extends Error {
     }
 }
 
-async function performSessionRefresh(): Promise<boolean> {
+export class AuthenticationRequiredError extends Error {
+    constructor() {
+        super('An authenticated session is required for this request.');
+        this.name = 'AuthenticationRequiredError';
+    }
+}
+
+async function performSessionRefresh(): Promise<string | null> {
     const antiforgeryResponse = await fetch(ENDPOINTS.antiforgery, {
         method: 'GET',
         credentials: 'include',
@@ -83,7 +92,7 @@ async function performSessionRefresh(): Promise<boolean> {
     });
 
     if (response.status === 401) {
-        return false;
+        return null;
     }
     if (!response.ok) {
         throw new SessionRefreshError();
@@ -106,16 +115,71 @@ async function performSessionRefresh(): Promise<boolean> {
         throw new SessionRefreshError();
     }
 
-    return true;
+    return refreshResult.accessToken;
 }
 
-export function refreshSession(): Promise<boolean> {
+async function refreshAccessToken(): Promise<string | null> {
     if (!sessionRefreshPromise) {
-        sessionRefreshPromise = performSessionRefresh().finally(() => {
-            sessionRefreshPromise = undefined;
-        });
+        const generation = authSessionGeneration;
+        const refreshPromise = performSessionRefresh()
+            .then((token) => {
+                if (generation !== authSessionGeneration) {
+                    return null;
+                }
+                accessToken = token;
+                return token;
+            })
+            .finally(() => {
+                if (sessionRefreshPromise === refreshPromise) {
+                    sessionRefreshPromise = undefined;
+                }
+            });
+        sessionRefreshPromise = refreshPromise;
     }
     return sessionRefreshPromise;
+}
+
+export async function refreshSession(): Promise<boolean> {
+    return (await refreshAccessToken()) !== null;
+}
+
+export function clearAccessToken(): void {
+    authSessionGeneration += 1;
+    accessToken = null;
+    sessionRefreshPromise = undefined;
+}
+
+export async function authenticatedFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+    const baseRequest = new Request(input, {
+        ...init,
+        credentials: init.credentials ?? 'include'
+    });
+
+    const sendWithToken = (token: string): Promise<Response> => {
+        const headers = new Headers(baseRequest.headers);
+        headers.set('Authorization', `Bearer ${token}`);
+        return fetch(new Request(baseRequest.clone(), {headers}));
+    };
+
+    const tokenUsed = accessToken ?? await refreshAccessToken();
+    if (!tokenUsed) {
+        throw new AuthenticationRequiredError();
+    }
+
+    const response = await sendWithToken(tokenUsed);
+    if (response.status !== 401) {
+        return response;
+    }
+
+    // Another request may already have refreshed this token while this response was in flight.
+    const refreshedToken = accessToken !== tokenUsed
+        ? accessToken
+        : await refreshAccessToken();
+    if (!refreshedToken) {
+        return response;
+    }
+
+    return sendWithToken(refreshedToken);
 }
 
 export async function pingServer(): Promise<void> {

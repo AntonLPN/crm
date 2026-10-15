@@ -3,7 +3,7 @@ import {BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate
 import {LoaderCircle} from 'lucide-react';
 import {DashboardPage} from './Dashboard/DashboardPage';
 import {LoginRegisterPage} from './LoginRegister/LoginReg';
-import {refreshSession, SessionRefreshError} from './api/auth/apiService';
+import {clearAccessToken, refreshSession, SessionRefreshError} from './api/auth/apiService';
 import {useTranslation} from 'react-i18next';
 
 interface RequireAuthProps {
@@ -20,7 +20,10 @@ function RequireAuth({authState}: RequireAuthProps): React.ReactElement {
 }
 function DevDashboardPreview(): React.ReactElement {
     const navigate = useNavigate();
-    return <DashboardPage onLogout={() => navigate('/')}/>;
+    return <DashboardPage onLogout={() => {
+        clearAccessToken();
+        navigate('/');
+    }}/>;
 }
 function SessionStatus(): React.ReactElement {
     const {t} = useTranslation();
@@ -119,7 +122,10 @@ function AppRoutes(): React.ReactElement {
             <Route element={<RequireAuth authState={authState}/>}>
                 <Route
                     path="/dashboard"
-                    element={<DashboardPage onLogout={() => setAuthState('anonymous')}/>}
+                    element={<DashboardPage onLogout={() => {
+                        clearAccessToken();
+                        setAuthState('anonymous');
+                    }}/>}
                 />
             </Route>
             {import.meta.env.DEV && (
