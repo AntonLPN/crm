@@ -2,7 +2,6 @@ import * as React from 'react';
 import {LayoutDashboard, Menu, ShieldCheck, Stethoscope} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 import {Sidebar} from '../components/SideBar/Sidebar';
-
 interface DashboardPageProps {
     onLogout: () => void;
 }
@@ -28,7 +27,7 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
                 <button
                     type="button"
                     onClick={() => setMobileOpen(true)}
-                    aria-label="Открыть меню"
+                    aria-label={t('sidebar.openMenu')}
                     className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                     <Menu className="h-5 w-5"/>
@@ -51,7 +50,7 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
             )}
 
             <Sidebar
-                user={{name: 'Anton Kudriashov', email: 'user@mail.com', badge: 'Врач'}}
+                user={{name: 'Anton Kudriashov', email: 'user@mail.com', badge: t('reg.doctor')}}
                 onLogout={onLogout}
                 mobileOpen={mobileOpen}
                 onMobileClose={() => setMobileOpen(false)}

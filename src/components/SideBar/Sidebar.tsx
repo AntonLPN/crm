@@ -96,7 +96,7 @@ export function Sidebar({
             className={`fixed inset-y-3 left-3 z-40 flex w-72 flex-col rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 transition-[transform,visibility,width] duration-200 max-md:shadow-2xl dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 md:static md:inset-auto md:z-auto md:h-full md:shrink-0 md:translate-x-0 ${
                 mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)] max-md:invisible'
             } ${collapsed ? 'md:w-[72px]' : 'md:w-72'}`}
-            aria-label={t('sidebar.label', 'Боковая панель')}
+            aria-label={t('sidebar.label')}
         >
             {/* Шапка */}
             <div className={`flex items-center ${collapsed ? 'flex-col gap-3' : 'justify-between'} px-1 py-1`}>
@@ -114,7 +114,7 @@ export function Sidebar({
                 <button
                     type="button"
                     onClick={toggleCollapsed}
-                    aria-label={collapsed ? t('sidebar.expand', 'Развернуть панель') : t('sidebar.collapse', 'Свернуть панель')}
+                    aria-label={collapsed ? t('sidebar.expand') : t('sidebar.collapse')}
                     aria-expanded={!collapsed}
                     className={`rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 max-md:hidden dark:hover:bg-slate-800 dark:hover:text-slate-200 ${focusRing}`}
                 >
@@ -123,7 +123,7 @@ export function Sidebar({
                 <button
                     type="button"
                     onClick={onMobileClose}
-                    aria-label={t('sidebar.close', 'Закрыть меню')}
+                    aria-label={t('sidebar.close')}
                     className={`rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 md:hidden dark:hover:bg-slate-800 dark:hover:text-slate-200 ${focusRing}`}
                 >
                     <X className="h-5 w-5"/>
@@ -134,7 +134,7 @@ export function Sidebar({
             <nav className="mt-6 flex-1 overflow-y-auto overflow-x-hidden">
                 <NavButton
                     icon={Settings}
-                    label={t('sidebar.settings', 'Настройки')}
+                    label={t('sidebar.settings')}
                     collapsed={collapsed}
                     active={settingsOpen && !collapsed}
                     expandable
@@ -144,9 +144,13 @@ export function Sidebar({
                 {settingsOpen && !collapsed && (
                     <div className="mt-1 px-1 pb-2">
                         <p className="px-2 pb-1.5 pt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-                            {t('sidebar.theme', 'Тема оформления')}
+                            {t('sidebar.theme')}
                         </p>
                         <ThemeSwitcher/>
+                        <p className="px-2 pb-1.5 pt-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            {t('sidebar.language')}
+                        </p>
+                        <LanguageSwitcher/>
                     </div>
                 )}
             </nav>
@@ -225,15 +229,15 @@ function ThemeSwitcher(): React.ReactElement {
     const {theme, setTheme} = useTheme();
 
     const options: { value: Theme; icon: LucideIcon; label: string }[] = [
-        {value: 'light', icon: Sun, label: t('sidebar.themeLight', 'Светлая')},
-        {value: 'dark', icon: Moon, label: t('sidebar.themeDark', 'Тёмная')},
-        {value: 'system', icon: Monitor, label: t('sidebar.themeSystem', 'Как в ОС')}
+        {value: 'light', icon: Sun, label: t('sidebar.themeLight')},
+        {value: 'dark', icon: Moon, label: t('sidebar.themeDark')},
+        {value: 'system', icon: Monitor, label: t('sidebar.themeSystem')}
     ];
 
     return (
         <div
             role="radiogroup"
-            aria-label={t('sidebar.theme', 'Тема оформления')}
+            aria-label={t('sidebar.theme')}
             className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/70"
         >
             {options.map(({value, icon: Icon, label}) => {
@@ -253,6 +257,40 @@ function ThemeSwitcher(): React.ReactElement {
                     >
                         <Icon className="h-4 w-4" aria-hidden="true"/>
                         <span className="whitespace-nowrap">{label}</span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+function LanguageSwitcher(): React.ReactElement {
+    const {t, i18n} = useTranslation();
+    const currentLanguage = (i18n.resolvedLanguage ?? i18n.language).split('-')[0];
+    const languages = ['en', 'ru', 'uk'] as const;
+
+    return (
+        <div
+            role="radiogroup"
+            aria-label={t('sidebar.language')}
+            className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/70"
+        >
+            {languages.map((language) => {
+                const selected = currentLanguage === language;
+                return (
+                    <button
+                        key={language}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        onClick={() => void i18n.changeLanguage(language)}
+                        className={`rounded-lg px-1 py-2 text-xs font-semibold uppercase transition-colors ${focusRing} ${
+                            selected
+                                ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                        }`}
+                    >
+                        {language}
                     </button>
                 );
             })}
@@ -311,7 +349,7 @@ function AccountMenu({user, collapsed, onAccountClick, onLogout}: AccountMenuPro
                     )}
                     <MenuItem
                         icon={User}
-                        label={t('sidebar.account', 'Аккаунт')}
+                        label={t('sidebar.account')}
                         onClick={() => {
                             setOpen(false);
                             onAccountClick?.();
@@ -320,7 +358,7 @@ function AccountMenu({user, collapsed, onAccountClick, onLogout}: AccountMenuPro
                     <div className="my-1 h-px bg-slate-100 dark:bg-slate-800"/>
                     <MenuItem
                         icon={LogOut}
-                        label={t('sidebar.logout', 'Выйти')}
+                        label={t('sidebar.logout')}
                         danger
                         onClick={() => {
                             setOpen(false);

@@ -1,0 +1,15 @@
+{
+  "openMenu": "Открыть меню",
+  "settings": "Настройки",
+  "theme": "Тема оформления",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+  "themeSystem": "Как в ОС",
+  "language": "Язык",
+  "account": "Аккаунт",
+  "logout": "Выйти",
+  "label": "Боковая панель",
+  "expand": "Развернуть",
+  "collapse": "Свернуть",
+  "close": "Закрыть"
+}
