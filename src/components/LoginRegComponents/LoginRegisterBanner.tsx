@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
-import {CheckCircle2, Sparkles, Stethoscope} from 'lucide-react';
-
+import {CheckCircle2, Sparkles} from 'lucide-react';
+import logo from '../../assets/logo.png';
 export function LoginRegisterBanner(): React.ReactElement {
     const {t} = useTranslation();
 
@@ -12,11 +12,12 @@ export function LoginRegisterBanner(): React.ReactElement {
             <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-blue-900/10 rounded-full blur-3xl"></div>
 
             <div className="relative z-10 flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                    <Stethoscope className="text-blue-600 w-7 h-7"/>
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-md ring-1 ring-slate-200">
+                    <img src={logo} alt="Diastema" className="w-full h-full object-contain"/>
                 </div>
-                <span className="text-white text-2xl font-bold tracking-wide">
-                    Diastema Dental Management System
+                <span className="flex flex-col text-white">
+                    <span className="font-great-vibes text-4xl leading-none">Diastema</span>
+                    <span className="text-sm font-medium tracking-wide">Dental Management System</span>
                 </span>
             </div>
 

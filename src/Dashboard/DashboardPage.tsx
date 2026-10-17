@@ -1,7 +1,9 @@
 import * as React from 'react';
-import {LayoutDashboard, Menu, ShieldCheck, Stethoscope} from 'lucide-react';
+import {LayoutDashboard, Menu, ShieldCheck} from 'lucide-react';
 import {useTranslation} from 'react-i18next';
 import {Sidebar} from '../components/SideBar/Sidebar';
+import logo from '../assets/logo.png';
+
 interface DashboardPageProps {
     onLogout: () => void;
 }
@@ -23,7 +25,8 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
     return (
         <div className="flex h-dvh flex-col gap-3 bg-slate-100 p-3 dark:bg-slate-900 md:flex-row">
             {/* Верхняя полоска: видна только на телефоне */}
-            <header className="flex shrink-0 items-center gap-3 rounded-2xl bg-white px-3 py-2 text-slate-900 dark:bg-slate-950 dark:text-white md:hidden">
+            <header
+                className="flex shrink-0 items-center gap-3 rounded-2xl bg-white px-3 py-2 text-slate-900 dark:bg-slate-950 dark:text-white md:hidden">
                 <button
                     type="button"
                     onClick={() => setMobileOpen(true)}
@@ -32,11 +35,12 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
                 >
                     <Menu className="h-5 w-5"/>
                 </button>
-                <span className="flex items-center gap-2 font-semibold">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-indigo-600 text-white">
-                        <Stethoscope className="h-4 w-4"/>
-                    </span>
-                    Diastema
+                <span className="flex items-center gap-2">
+                <span
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-slate-200 dark:ring-0">
+    <img src={logo} alt="" className="h-full w-full object-contain"/>
+</span>
+                 <span className="font-great-vibes translate-y-1 whitespace-nowrap text-2xl leading-none">Diastema</span>
                 </span>
             </header>
 
@@ -56,7 +60,8 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
                 onMobileClose={() => setMobileOpen(false)}
             />
 
-            <main className="min-h-0 flex-1 overflow-y-auto rounded-2xl bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100">
+            <main
+                className="min-h-0 flex-1 overflow-y-auto rounded-2xl bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100">
                 <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-12">
                     <div className="mb-10">
                         <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
@@ -71,8 +76,10 @@ export function DashboardPage({onLogout}: DashboardPageProps): React.ReactElemen
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">
+                    <div
+                        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+                        <div
+                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">
                             <LayoutDashboard className="h-6 w-6"/>
                         </div>
                         <h2 className="mt-5 text-lg font-semibold">{t('dashboard.welcome')}</h2>

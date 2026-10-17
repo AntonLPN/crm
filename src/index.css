@@ -1,2 +1,7 @@
 @import "tailwindcss";
+@import "@fontsource/great-vibes";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@utility font-great-vibes {
+  font-family: "Great Vibes", cursive;
+}

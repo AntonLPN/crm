@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
+import logo from '../../assets/logo.png';
 import {
     ChevronDown,
     LogOut,
@@ -8,7 +9,6 @@ import {
     MoreHorizontal,
     PanelLeft,
     Settings,
-    Stethoscope,
     Sun,
     User,
     X,
@@ -102,13 +102,14 @@ export function Sidebar({
             <div className={`flex items-center ${collapsed ? 'flex-col gap-3' : 'justify-between'} px-1 py-1`}>
                 <div className="flex min-w-0 items-center gap-3">
                     <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-indigo-600 text-white shadow-sm">
-                        <Stethoscope className="h-4.5 w-4.5" aria-hidden="true"/>
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-200 dark:ring-0">
+                        <img src={logo} alt="" className="h-full w-full object-contain"/>
                     </div>
                     {!collapsed && (
-                        <span className="truncate text-base font-semibold text-slate-900 dark:text-white">
-                            {appName}
-                        </span>
+                        <span
+                            className="font-great-vibes translate-y-1 whitespace-nowrap text-2xl leading-none text-slate-900 dark:text-white">
+    {appName}
+</span>
                     )}
                 </div>
                 <button

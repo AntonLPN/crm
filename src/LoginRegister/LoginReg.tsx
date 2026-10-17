@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
-import {Stethoscope} from 'lucide-react';
+import logo from '../assets/logo.png';
 // Components
 import {LanguageSwitcher} from "../components/LoginRegComponents/ButtonLanguage";
 import {LoginForm} from "../components/LoginRegComponents/LoginForm";
@@ -100,10 +100,10 @@ export function LoginRegisterPage({onLoginSuccess}: LoginRegisterPageProps): Rea
                     />
                     {/*Отображение для мобильного телефона*/}
                     <div className="md:hidden flex items-center gap-3 mb-8 justify-center mt-6">
-                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                            <Stethoscope className="text-white w-6 h-6"/>
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-md ring-1 ring-slate-200">
+                            <img src={logo} alt="Diastema" className="w-full h-full object-contain"/>
                         </div>
-                        <span className="text-slate-800 text-2xl font-bold">Diastema</span>
+                        <span className="font-great-vibes text-3xl text-slate-800">Diastema</span>
                     </div>
                     {/*переключатель между формой входа и регистрации*/}
                     <div className="max-w-md w-full mx-auto">
