@@ -55,27 +55,6 @@ export function LoginForm({onLogin, isSubmitting, submitError}: LoginFormProps):
                     {t('reg.passwordRequirements')}
                 </p>
             </div>
-
-            <div className="flex items-center justify-between pt-2">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                        <input
-                            type="checkbox"
-                            className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded bg-white checked:bg-blue-600 checked:border-blue-600 transition-colors"
-                        />
-                        <ShieldCheck
-                            className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
-                        />
-                    </div>
-                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">
-                        {t('login.remember')}
-                    </span>
-                </label>
-                <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                    {t('login.forgot')}
-                </a>
-            </div>
-
             <button
                 type="submit"
                 disabled={isSubmitting}
@@ -84,6 +63,11 @@ export function LoginForm({onLogin, isSubmitting, submitError}: LoginFormProps):
                 {isSubmitting ? t('login.submitting') : t('login.submit')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
             </button>
+            <div className="flex items-center justify-center pt-2">
+                <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    {t('login.forgot')}
+                </a>
+            </div>
             {submitError && (
                 <p className="text-sm text-red-600 text-center" role="alert">
                     {submitError}

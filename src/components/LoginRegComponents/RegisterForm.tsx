@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {useTranslation} from 'react-i18next';
+import {Link} from 'react-router-dom';
 import {Activity, Lock, Mail, Stethoscope, User} from 'lucide-react';
 import {isValidPhoneNumber, type CountryCode} from 'libphonenumber-js';
 import type {RegistrationData} from '../../api/auth/types';
@@ -145,16 +146,21 @@ export function RegisterForm({
                 </div>
             </div>
 
-            <label className="flex items-start gap-3 text-sm text-slate-600 mt-8">
+            <div className="mt-8 flex items-start gap-3 text-sm text-slate-600">
                 <input
                     type="checkbox"
                     required
                     checked={agreedToTerms}
                     onChange={(event) => setAgreedToTerms(event.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="scheme-light mt-0.5 h-4 w-4 rounded border-slate-300 bg-white text-blue-600 focus:ring-blue-500"
                 />
-                <span>{t('reg.agreeToTerms')}</span>
-            </label>
+                <p>
+                    {t('reg.agreeToTerms')}{' '}
+                    <Link to="/terms-of-use" className="text-blue-600 underline hover:text-blue-700">
+                        {t('reg.termsLink')}
+                    </Link>
+                </p>
+            </div>
 
             <button
                 type="submit"

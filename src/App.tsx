@@ -3,6 +3,7 @@ import {BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate
 import {LoaderCircle} from 'lucide-react';
 import {DashboardPage} from './Dashboard/DashboardPage';
 import {LoginRegisterPage} from './LoginRegister/LoginReg';
+import {TermsOfUsePage} from './TermsOfUse/TermsOfUsePage';
 import {clearAccessToken, refreshSession, SessionRefreshError} from './api/auth/apiService';
 import {useTranslation} from 'react-i18next';
 
@@ -56,7 +57,8 @@ function AppRoutes(): React.ReactElement {
         if (
             import.meta.env.DEV &&
             (initialPath.current === '/' ||
-                initialPath.current === '/__dev/dashboard' ||
+            initialPath.current === '/terms-of-use' ||
+            initialPath.current === '/__dev/dashboard' ||
                 initialPath.current === '/__dev/login')
         ) {
             return;
@@ -113,6 +115,7 @@ function AppRoutes(): React.ReactElement {
                             ? <Navigate to="/dashboard" replace/>
                             : <LoginRegisterPage onLoginSuccess={() => setAuthState('authenticated')}/>}
             />
+            <Route path="/terms-of-use" element={<TermsOfUsePage/>}/>
             {import.meta.env.DEV && (
                 <Route
                     path="/__dev/login"

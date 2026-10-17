@@ -16,7 +16,7 @@ export function LoginRegisterBanner(): React.ReactElement {
                     <img src={logo} alt="Diastema" className="w-full h-full object-contain"/>
                 </div>
                 <span className="flex flex-col text-white">
-                    <span className="font-great-vibes text-4xl leading-none">Diastema</span>
+                    <span className="font-great-vibes translate-y-1 text-4xl leading-none">Diastema</span>
                     <span className="text-sm font-medium tracking-wide">Dental Management System</span>
                 </span>
             </div>
